@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buscar Inmuebles</title>
+  <link rel="stylesheet" href="css/estilos.css" />
+</head>
+
+<body class="home-page">
+  <header class="navbar">
+    <div class="logo-nav">
+      <a href="inmuebles.html">
+        <img src="assets/wangLogoBanner.png" alt="Logo WANG" />
+      </a>
+    </div>
+    <nav class="menu">
+      <a href="cuenta.html">Cuenta</a>
+      <a href="citas.html">Citas</a>
+      <a href="buscar.html" style="color: #f2c94c;">
+        <img src="assets/searchingIcon.png" alt="Buscar" />
+      </a>
+      <a href="publicar.html">Publicar</a>
+      <a href="contratos.html">Contratos</a>
+      <a href="index.html"><img src="assets/logoutIcon.png" alt="Salir" /></a>
+    </nav>
+  </header>
+
+  <main style="padding: 40px 20px;">
+    <section id="resultados-inmuebles" class="listado-inmuebles">
+      <!-- Aquí se insertarán dinámicamente los resultados -->
+    </section>
+  </main>
+
+  <script>
+    // Simulación de llamada a la API
+    const inmuebles = [
+      {
+        titulo: "Casa en Villahermosa",
+        precio: 3055500,
+        direccion: "Calle Sureste Coto 1 Sotavento, Mza 3, Lote 103, Villahermosa",
+        autor: "Ares Judda Rivera Soto",
+        imagen: "assets/stockhouse.png"
+      },
+      {
+        titulo: "Casa en Villahermosa",
+        precio: 3055500,
+        direccion: "Calle Sureste Coto 1 Sotavento, Mza 3, Lote 103, Villahermosa",
+        autor: "Ares Judda Rivera Soto",
+        imagen: "assets/stockhouse.png"
+      }
+    ];
+
+    const contenedor = document.getElementById("resultados-inmuebles");
+
+    function renderInmuebles(lista) {
+      contenedor.innerHTML = "";
+      lista.forEach(inmueble => {
+        const card = document.createElement("div");
+        card.classList.add("tarjeta-inmueble");
+        card.innerHTML = `
+          <img src="${inmueble.imagen}" alt="Imagen inmueble">
+          <div class="contenido">
+            <h3>${inmueble.titulo}</h3>
+            <p class="precio">$${inmueble.precio.toLocaleString('es-MX')} MXN</p>
+            <p class="direccion">${inmueble.direccion}</p>
+            <p class="agente">${inmueble.autor}</p>
+            <a href="#" class="boton-detalles">Ver Detalles</a>
+          </div>
+        `;
+        contenedor.appendChild(card);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderInmuebles(inmuebles);
+    });
+  </script>
+</body>
+
+</html>

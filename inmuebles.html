@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WANG - Inmuebles</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body class="home-page">
+  <header class="navbar">
+    <div class="logo-nav">
+      <a href="inmuebles.html">
+        <img src="assets/wangLogoBanner.png" alt="Logo WANG" />
+      </a>
+    </div>
+    <nav class="menu">
+      <a href="cuenta.html">Cuenta</a>
+      <a href="citas.html">Citas</a>
+      <a href="buscar.html">
+        <img src="assets/searchIcon.png" alt="Buscar" />
+      </a>
+      <a href="publicar.html">Publicar</a>
+      <a href="contratos.html">Contratos</a>
+      <a href="index.html">
+        <img src="assets/logoutIcon.png" alt="Salir" />
+      </a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="alianzas">
+      <h2>
+        Gracias a nuestras alianzas con más de 50 instituciones financieras,<br />
+        te ayudamos a encontrar el crédito hipotecario que mejor se adapta a tus necesidades.
+      </h2>
+      <div class="carousel-container">
+        <div class="carousel-track">
+          <img src="assets/bankLogosBanner.png" alt="Logos financieros">
+          <img src="assets/bankLogosBanner.png" alt="Logos financieros duplicado">
+        </div>
+      </div>
+    </section>
+
+    <section id="contenedor-inmuebles" class="listado-inmuebles">
+      <!-- Aquí se insertarán las tarjetas con JS -->
+    </section>
+  </main>
+
+  <script>
+    // Simulación de llamada a la API
+    const inmuebles = [
+      {
+        titulo: "Casa en Villahermosa",
+        precio: 3055500,
+        direccion: "Calle Sureste Coto 1 Sotavento, Mza 3, Lote 103, Villahermosa",
+        autor: "Ares Judda Rivera Soto",
+        imagen: "assets/stockhouse.png"
+      },
+      {
+        titulo: "Casa en Villahermosa",
+        precio: 3055500,
+        direccion: "Calle Sureste Coto 1 Sotavento, Mza 3, Lote 103, Villahermosa",
+        autor: "Ares Judda Rivera Soto",
+        imagen: "assets/stockhouse.png"
+      }
+    ];
+
+    const contenedor = document.getElementById("contenedor-inmuebles");
+
+    function renderInmuebles(lista) {
+      contenedor.innerHTML = "";
+      lista.forEach(inmueble => {
+        const card = document.createElement("div");
+        card.classList.add("tarjeta-inmueble");
+        card.innerHTML = `
+          <img src="${inmueble.imagen}" alt="Imagen inmueble">
+          <div class="contenido">
+            <h3>${inmueble.titulo}</h3>
+            <p class="precio">$${inmueble.precio.toLocaleString('es-MX')} MXN</p>
+            <p class="direccion">${inmueble.direccion}</p>
+            <p class="agente">${inmueble.autor}</p>
+            <a href="#" class="boton-detalles">Ver Detalles</a>
+          </div>
+        `;
+        contenedor.appendChild(card);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderInmuebles(inmuebles);
+    });
+  </script>
+
+  <script src="js/inmuebles.js"></script>
+</body>
+</html>
