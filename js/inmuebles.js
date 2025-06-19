@@ -396,32 +396,48 @@ function renderCitas(lista, contenedor) {
   contenedor.innerHTML = "";
 
   if (!lista.length) {
-    contenedor.innerHTML = "<p>No hay citas registradas.</p>";
+    contenedor.innerHTML = "<p role='status' aria-live='polite'>No hay citas registradas.</p>";
     return;
   }
 
   lista.forEach((cita) => {
-    const card = document.createElement("div");
+    const card = document.createElement("article");
     card.classList.add("tarjeta-inmueble");
+    card.setAttribute("role", "group");
+    card.setAttribute("aria-label", `Cita con ${cita.fullName}`);
 
-    const estadoColor = cita.status === "Accepted" ? "green"
-                        : cita.status === "Rejected" ? "red"
-                        : "magenta";
+    const estadoColor = cita.status === "Accepted" ? "#2e7d32"
+                        : cita.status === "Rejected" ? "#d32f2f"
+                        : "#8e24aa";
 
     let botones = "";
     if (cita.status === "Pending") {
       botones = `
-        <button class="boton-registrar" onclick="responderCita('${cita.email}', 'Accepted')">Aceptar</button>
-        <button class="boton-cancelar" onclick="responderCita('${cita.email}', 'Rejected')">Rechazar</button>
+        <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+          <button 
+            onclick="responderCita('${cita.appointmentId}', 'Accepted')" 
+            style="background-color: #2e7d32; color: white; font-weight: bold; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer;"
+            aria-label="Aceptar cita con ${cita.fullName}">
+            Aceptar
+          </button>
+          <button 
+            onclick="responderCita('${cita.appointmentId}', 'Rejected')" 
+            style="background-color: #d32f2f; color: white; font-weight: bold; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer;"
+            aria-label="Rechazar cita con ${cita.fullName}">
+            Rechazar
+          </button>
+        </div>
       `;
     }
 
     card.innerHTML = `
       <div class="contenido">
-        <h3>${cita.fullName}</h3>
-        <p><strong>Correo:</strong> ${cita.email}</p>
-        <p><strong>Teléfono:</strong> ${cita.phone}</p>
-        <p><strong>Estado:</strong> <span style="color:${estadoColor}; font-weight:bold;">${cita.status}</span></p>
+        <h3 id="cita-${cita.appointmentId}">${cita.fullName}</h3>
+        <p><strong>Correo:</strong> <a href="mailto:${cita.email}" aria-describedby="cita-${cita.appointmentId}">${cita.email}</a></p>
+        <p><strong>Teléfono:</strong> <a href="tel:${cita.phone}">${cita.phone}</a></p>
+        <p><strong>Estado:</strong> 
+          <span style="color:${estadoColor}; font-weight:bold;" aria-live="polite">${cita.status}</span>
+        </p>
         ${cita.responseDate ? `<p><strong>Fecha de respuesta:</strong> ${cita.responseDate.split("T")[0]}</p>` : ""}
         ${cita.visitDate ? `<p><strong>Fecha de visita:</strong> ${cita.visitDate.split("T")[0]}</p>` : ""}
         ${botones}
