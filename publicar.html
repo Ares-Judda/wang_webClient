@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WANG - Publicar Inmueble</title>
+  <title>Dar de alta Inmueble</title>
   <link rel="stylesheet" href="css/estilos.css" />
 </head>
 <body class="home-page">
@@ -31,33 +31,30 @@
     <section class="formulario-alta-usuario" style="padding: 40px 20px;">
       <form id="form-publicar">
         <label for="titulo">Título:</label>
-        <input type="text" id="titulo" placeholder="e.j. Hermosa Casa en Villahermosa" required />
+        <input type="text" id="titulo" required />
 
         <label for="tipo">Tipo de Inmueble:</label>
         <select id="tipo" required>
           <option value="">-- Selecciona un tipo de inmueble --</option>
           <option value="Casa">Casa</option>
           <option value="Departamento">Departamento</option>
-          <option value="Terreno">Terreno</option>
-          <option value="Oficina">Oficina</option>
         </select>
 
         <label for="direccion">Dirección:</label>
-        <input type="text" id="direccion" placeholder="e.j. Calle Sureste Coto 1 Sotavento, Mza 3, Lote 103, Villahermosa" required />
+        <input type="text" id="direccion" required />
 
         <label for="latitud">Latitud:</label>
-        <input type="text" id="latitud" placeholder="e.j. 19.541848398442916" required />
+        <input type="text" id="latitud" required />
 
         <label for="longitud">Longitud:</label>
-        <input type="text" id="longitud" placeholder="e.j. -96.92720600427658" required />
+        <input type="text" id="longitud" required />
 
         <label for="precio">Precio:</label>
-        <input type="number" id="precio" placeholder="e.j. 3055500.00" required />
+        <input type="number" id="precio" required />
 
         <label for="descripcion">Descripción:</label>
-        <textarea id="descripcion" rows="6" placeholder="e.j. Departamento de 132m2 con excelente iluminación y ventilación natural, cuenta con 3 recamaras, principal con baño completo, 2 baños completos, sala, comedor, cocina integral, cuarto de servicio con baño completo y 1 estacionamiento." required></textarea>
+        <textarea id="descripcion" rows="6" required></textarea>
 
-        <!-- Campo solo visible en modo modificación -->
         <div id="campo-vender-a" style="display: none;">
           <label for="cliente">Vender a:</label>
           <select id="cliente">
@@ -69,14 +66,13 @@
         <div class="upload-box" onclick="document.getElementById('input-fotos').click();">
           <img src="assets/uploadIcon.png" alt="Subir imagen" />
           <p>Haz clic para subir imágenes (máx. 10)</p>
-          <input type="file" id="input-fotos" title="input-fotos" accept="image/*" multiple onchange="mostrarVistaPrevia(event)">
+          <input type="file" id="input-fotos" title="input-fotos" accept="image/*" multiple>
         </div>
 
         <div id="preview" class="preview-container"></div>
 
         <button type="submit" class="boton-registrar">Guardar</button>
 
-        <!-- Botón solo visible en modo modificación -->
         <button type="button" id="boton-eliminar" class="boton-cancelar" style="background-color: #e6007e; display: none;">
           Eliminar
         </button>
@@ -86,36 +82,6 @@
     </section>
   </main>
 
-  <script>
-    function mostrarVistaPrevia(event) {
-      const files = event.target.files;
-      const preview = document.getElementById('preview');
-      preview.innerHTML = '';
-
-      if (files.length > 10) {
-        alert('Solo se permiten hasta 10 imágenes.');
-        event.target.value = '';
-        return;
-      }
-
-      for (const file of files) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          preview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    // Simulación: Si vienes en modo edición, muestra controles extra
-    const urlParams = new URLSearchParams(window.location.search);
-    const esEdicion = urlParams.get('modo') === 'editar';
-    if (esEdicion) {
-      document.getElementById('campo-vender-a').style.display = 'block';
-      document.getElementById('boton-eliminar').style.display = 'block';
-    }
-  </script>
+  <script type="module" src="js/inmuebles.js"></script>
 </body>
 </html>

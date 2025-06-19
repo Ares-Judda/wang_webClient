@@ -6,79 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pago de Inmueble</title>
   <link rel="stylesheet" href="css/estilos.css" />
-  <style>
-    .metodo-pago-opcion {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background-color: #f7f7f7;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      font-weight: bold;
-      position: relative;
-    }
-
-    .metodo-pago-opcion:has(input[type="radio"]:checked) {
-      border: 2px solid #247a5c;
-      background-color: #e2f3ee;
-    }
-
-    .metodo-pago-opcion:hover {
-      background-color: #eaeaea;
-    }
-
-    .metodo-pago-opcion input[type="radio"] {
-      transform: scale(1.3);
-      accent-color: #247a5c;
-    }
-
-    .metodo-pago-opcion label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .metodo-pago-opcion img {
-      height: 28px;
-      width: auto;
-    }
-
-    .metodo-pago-opcion .check-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.2rem;
-      color: #247a5c;
-      display: none;
-    }
-
-    .metodo-pago-opcion.seleccionado .check-icon {
-      display: block;
-    }
-
-    #form-tarjeta {
-      background: #eee;
-      padding: 20px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      display: none;
-    }
-
-    #form-tarjeta input {
-      width: 100%;
-      padding: 10px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-bottom: 10px;
-    }
-  </style>
 </head>
 
 <body class="home-page">
@@ -101,13 +28,13 @@
   <main style="padding: 40px 20px;">
     <form class="formulario-alta-usuario">
       <label for="titulo">Título del inmueble:</label>
-      <input type="text" id="titulo" value="Casa en Villahermosa" disabled />
+      <input type="text" id="titulo" disabled />
 
       <label for="propietario">Nombre del Titular del Inmueble:</label>
-      <input type="text" id="propietario" value="Ares Judda Rivera Soto" disabled />
+      <input type="text" id="propietario" disabled />
 
       <label>Método de pago:</label>
-      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+      <div class="metodos-pago">
         <div class="metodo-pago-opcion">
           <span class="check-icon">✔</span>
           <input type="radio" name="metodo" id="paypal" value="paypal" />
@@ -140,45 +67,35 @@
         <label for="nombreTarjeta">Nombre del titular:</label>
         <input type="text" id="nombreTarjeta" placeholder="e.j. Luis Angel Elizalde Arroyo" />
 
-        <div style="display: flex; gap: 12px;">
-          <div style="flex: 1;">
+        <div class="tarjeta-info-extra">
+          <div>
             <label>MM:</label>
             <input type="text" placeholder="e.j. 08" />
           </div>
-          <div style="flex: 1;">
+          <div>
             <label>YY:</label>
             <input type="text" placeholder="e.j. 2025" />
           </div>
-          <div style="flex: 1;">
+          <div>
             <label>CVV:</label>
             <input type="text" placeholder="e.j. 156" />
           </div>
         </div>
 
-        <button type="button"
-          style="width: 100%; margin-top: 12px; padding: 10px; background-color: #f2c94c; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;">
+        <button type="button" class="boton-guardar-tarjeta">
           Guardar tarjeta
         </button>
       </div>
 
       <label for="monto">Monto a pagar:</label>
-      <input type="text" id="monto" value="$3,055,500.00 MXN" disabled />
+      <input type="text" id="monto" disabled />
 
       <button type="submit" class="boton-registrar">Guardar</button>
       <button type="button" class="boton-cancelar" onclick="window.location.href='cuenta.html'">Cancelar</button>
     </form>
   </main>
 
-  <script>
-    const radios = document.querySelectorAll('input[name="metodo"]');
-    const tarjetaForm = document.getElementById('form-tarjeta');
-
-    radios.forEach(radio => {
-      radio.addEventListener('change', () => {
-        tarjetaForm.style.display = radio.value === 'tarjeta' ? 'block' : 'none';
-      });
-    });
-  </script>
+  <script type="module" src="js/inmuebles.js"></script>
 </body>
 
 </html>

@@ -26,7 +26,6 @@
 
   <main style="padding: 40px 20px;">
     <form id="form-modificar" class="formulario-alta-usuario">
-
       <label for="nombre">Nombre completo:</label>
       <input type="text" id="nombre" required />
 
@@ -53,23 +52,6 @@
     </form>
   </main>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const datos = JSON.parse(localStorage.getItem("usuarioActual")) || {};
-      document.getElementById("nombre").value = datos.nombre || "";
-      document.getElementById("telefono").value = datos.telefono || "";
-      document.getElementById("direccion").value = datos.direccion || "";
-      document.getElementById("rol").value = datos.rol || "";
-      document.getElementById("email").value = datos.email || "";
-      document.getElementById("password").value = datos.password || "";
-    });
-
-    document.getElementById("form-modificar").addEventListener("submit", function (e) {
-      e.preventDefault();
-      // Aquí iría lógica para enviar cambios
-      alert("Cambios guardados correctamente.");
-      window.location.href = "cuenta.html";
-    });
-  </script>
+  <script type="module" src="js/perfil.js"></script>
 </body>
 </html>

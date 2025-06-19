@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WANG - Cuenta</title>
+  <title>Cuenta</title>
   <link rel="stylesheet" href="css/estilos.css" />
 </head>
 
@@ -33,66 +32,10 @@
     </div>
 
     <section id="contenedor-inmuebles" class="listado-inmuebles">
-      <!-- Se insertarán tarjetas aquí -->
+      <!-- Se insertarán tarjetas aquí por JS -->
     </section>
   </main>
 
-  <script>
-    const rolUsuario = localStorage.getItem('rol');
-    const inmueblesMock = [
-      {
-        id: 1,
-        titulo: "Casa en Villahermosa",
-        precio: 3055500.00,
-        direccion: "Calle Sureste Coto 1 Sotavento, Mza 3, Lote 103, Villahermosa",
-        autor: "Ares Judda Rivera Soto",
-        imagen: "assets/stockhouse.png"
-      },
-      {
-        id: 2,
-        titulo: "Casa en Villahermosa",
-        precio: 3055500.00,
-        direccion: "Calle Sureste Coto 1 Sotavento, Mza 3, Lote 103, Villahermosa",
-        autor: "Ares Judda Rivera Soto",
-        imagen: "assets/stockhouse.png"
-      }
-    ];
-
-    function cargarInmuebles() {
-      const contenedor = document.getElementById('contenedor-inmuebles');
-      contenedor.innerHTML = '';
-
-      inmueblesMock.forEach(inmueble => {
-        const tarjeta = document.createElement('div');
-        tarjeta.className = 'tarjeta-inmueble';
-
-        tarjeta.innerHTML = `
-          <img src="${inmueble.imagen}" alt="Imagen del inmueble" />
-          <div class="contenido">
-            <h3>${inmueble.titulo}</h3>
-            <p class="precio">$${inmueble.precio.toLocaleString('es-MX')} MXN</p>
-            <p class="direccion">${inmueble.direccion}</p>
-            <p class="agente">${inmueble.autor}</p>
-            <button class="boton-registrar" onclick="redirigir(${inmueble.id})">
-              ${rolUsuario === 'Arrendatario' ? 'Pagar' : 'Modificar'}
-            </button>
-          </div>
-        `;
-        contenedor.appendChild(tarjeta);
-      });
-    }
-
-    function redirigir(id) {
-      if (rolUsuario === 'Arrendatario') {
-        alert("Redirigir a pago del inmueble ID: " + id);
-        // window.location.href = `pago.html?id=${id}`;
-      } else {
-        window.location.href = `publicar.html?modo=editar&id=${id}`;
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', cargarInmuebles);
-  </script>
+  <script type="module" src="js/perfil.js"></script>
 </body>
-
 </html>

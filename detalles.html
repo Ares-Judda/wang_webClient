@@ -1,110 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detalles del Inmueble</title>
   <link rel="stylesheet" href="css/estilos.css" />
-  <style>
-    .galeria {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
-    }
-
-    .galeria img {
-      height: 100px;
-      object-fit: cover;
-      border-radius: 6px;
-    }
-
-    .mapa {
-      width: 100%;
-      height: 300px;
-      margin: 20px 0;
-      border-radius: 8px;
-    }
-
-    .preguntas, .resenas {
-      background: #f7f7f7;
-      padding: 24px;
-      border-radius: 8px;
-      margin-bottom: 24px;
-    }
-
-    .preguntas h3, .resenas h3 {
-      font-size: 1.5rem;
-      color: #222;
-      margin-bottom: 14px;
-      font-weight: bold;
-      text-decoration: underline;
-    }
-
-    .resena-usuario {
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .detalles-inmueble p {
-      margin-bottom: 16px;
-    }
-
-    .agenda-box {
-      background-color: #f2f2f2;
-      padding: 20px;
-      margin: 30px 0;
-      border-radius: 6px;
-      text-align: center;
-    }
-
-    .agenda-box p {
-      font-weight: bold;
-      margin-bottom: 12px;
-      font-size: 1.2rem;
-    }
-
-    .detalles-inmueble h2 {
-      margin-top: 0;
-      margin-bottom: 18px;
-    }
-
-    .pregunta-form, .review-form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .pregunta-form input {
-      flex: 1;
-      padding: 10px;
-      font-size: 1rem;
-    }
-
-    .pregunta-form button, .review-form button {
-      background-color: #247a5c;
-      color: white;
-      border: none;
-      font-weight: bold;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .review-form input[type="text"] {
-      flex: 3;
-      padding: 10px;
-      font-size: 1rem;
-    }
-
-    .review-form input[type="number"] {
-      flex: 1;
-      padding: 10px;
-      font-size: 1rem;
-    }
-  </style>
 </head>
 
 <body class="home-page">
@@ -126,72 +26,54 @@
 
   <main style="padding: 40px 20px;">
     <section>
-      <div class="galeria">
-        <img src="assets/stockhouse.png" alt="Imagen 1" />
-        <img src="assets/stockhouse.png" alt="Imagen 2" />
-        <img src="assets/stockhouse.png" alt="Imagen 3" />
-        <img src="assets/stockhouse.png" alt="Imagen 4" />
-      </div>
-
-      <div class="detalles-inmueble">
-        <h2>Departamento Tipo Mini para estudiantes</h2>
-        <p><strong>Precio:</strong> $1,500,000.00 MXN</p>
-        <p><strong>Dirección:</strong> Angel Carvajal 60, Emiliano Zapata, 91090 Xalapa-Enríquez, Ver. Incluye cocina equipada, recámara con cama matrimonial, clóset y baño completo.</p>
-        <p>Servicios como luz, agua e internet están incluidos, con estacionamiento opcional para auto o moto. Sin mascotas. Ubicado a 5 minutos de la Universidad Veracruzana, con acceso a escuelas, comercios y transporte.</p>
-        <p>Perfecto para quienes buscan un espacio funcional y económico con ambiente tranquilo, ideal para el estudio o el trabajo académico.</p>
-      </div>
-
+      <div id="galeria" class="galeria"></div>
+      <div id="detalles-inmueble" class="detalles-inmueble"></div>
       <div class="agenda-box">
         <p>¿Te interesa el inmueble? ¡Agenda una cita!</p>
-        <button class="boton-registrar" onclick="alert('Cita agendada correctamente.')">Agendar</button>
+        <button class="boton-registrar">Agendar</button>
       </div>
-
       <div id="map" class="mapa"></div>
-
-      <div class="preguntas">
-        <h3>Preguntas y respuestas</h3>
-        <div class="pregunta-form">
-          <input type="text" placeholder="e.j. ¿Cuántas habitaciones tiene?" />
-          <button>Enviar</button>
-        </div>
-        <ul>
-          <li><strong>2025-01-01:</strong> ¿La propiedad ya está escriturada?<br><em>Respuesta:</em> Sí, toda la documentación está en regla.</li>
-          <li><strong>2025-06-05:</strong> ¿Tiene algun problema de agua?<br><em>Respuesta:</em> Sí pero es por la zona que hacen cortes de agua cada 2 meses.</li>
-        </ul>
-      </div>
-
-      <div class="resenas">
-        <h3>Reseñas del Inmueble y/o Arrendador</h3>
-        <div class="review-form">
-          <input type="text" placeholder="e.j. ¡Muy buen lugar para vivir con las 3B!" />
-          <input type="number" placeholder="e.j. 5" min="1" max="5" />
-          <button>Dar reseña</button>
-        </div>
-        <div>
-          <p class="resena-usuario">María G.:</p>
-          <p>Muy buena ubicación, cerca de centros comerciales y escuelas.</p>
-          <p><strong>Calificación:</strong> 5</p>
-        </div>
-        <div>
-          <p class="resena-usuario">Usuario:</p>
-          <p>Muy recomendable, el inmueble muy bonito y todo muy bien. Si corresponde su descripción con lo visto en el tiempo en el que lo habité y el dueño es super amable y super atento. Recomiendo 10/10</p>
-          <p><strong>Calificación:</strong> 5</p>
-        </div>
-      </div>
+      <div id="seccion-preguntas" class="preguntas"></div>
+      <div id="seccion-resenas" class="resenas"></div>
     </section>
   </main>
 
-  <script>
-    function initMap() {
-      const ubicacion = { lat: 19.5202968, lng: -96.910396 };
-      const mapa = new google.maps.Map(document.getElementById("map"), {
-        zoom: 15,
-        center: ubicacion,
+  <script type="module">
+    import { cargarDetallesInmueble, initMapaDesdeAPI } from './js/inmuebles.js';
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const inmueble = await cargarDetallesInmueble();
+      if (inmueble?.latitud && inmueble?.longitud) {
+        initMapaDesdeAPI(inmueble.latitud, inmueble.longitud);
+      }
+
+      document.querySelector(".boton-registrar")?.addEventListener("click", async () => {
+        const usuario = JSON.parse(localStorage.getItem("usuario"));
+        if (!usuario) return alert("Debes iniciar sesión");
+
+        try {
+          const response = await fetch("http://localhost:8085/api/property/createAppointment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tenantId: usuario.id,
+              propertyId: inmueble.id,
+              visitDateTime: new Date().toISOString()
+            })
+          });
+
+          if (!response.ok) throw new Error("Error al agendar la cita");
+
+          alert("Cita agendada correctamente.");
+        } catch (error) {
+          alert("Error al agendar la cita");
+          console.error(error);
+        }
       });
-      new google.maps.Marker({ position: ubicacion, map: mapa });
-    }
+    });
   </script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"></script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJL-Z1wCqOMEeNfYRgPkGMySrkXL3XrHU"></script>
 </body>
 
 </html>
