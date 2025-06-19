@@ -45,7 +45,19 @@
 
   <script type="module">
     import { obtenerInmuebles, renderInmuebles } from './js/inmuebles.js';
+
     document.addEventListener("DOMContentLoaded", async () => {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      if (usuario?.Role?.toLowerCase() === "tenant") {
+        const enlaces = document.querySelectorAll("nav.menu a");
+        enlaces.forEach((enlace) => {
+          const href = enlace.getAttribute("href");
+          if (["citas.html", "publicar.html"].includes(href)) {
+            enlace.style.display = "none";
+          }
+        });
+      }
+
       const contenedor = document.getElementById("contenedor-inmuebles");
       const inmuebles = await obtenerInmuebles();
       renderInmuebles(inmuebles.map(inmueble => ({

@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       `;
 
       const boton = div.querySelector("button");
-      boton.addEventListener("click", () => descargarContrato(c.contractFile));
+      boton.addEventListener("click", descargarContrato);
 
       contenedor.appendChild(div);
     });
@@ -38,10 +38,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-function descargarContrato(contractFile) {
-  const url = `${API_BASE_URL}/${contractFile}`;
+function descargarContrato() {
+  const url = "assets/Contrato_Compraventa_Inmueble.pdf";
   const a = document.createElement("a");
   a.href = url;
-  a.download = contractFile.split('/').pop(); // nombre del archivo
+  a.download = "Contrato_Compraventa_Inmueble.pdf";
+  a.target = "_blank";
   a.click();
 }
