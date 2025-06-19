@@ -348,3 +348,96 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// Función para obtener citas desde el backend
+async function obtenerCitas() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/property/getAppointments`);
+    if (!response.ok) throw new Error("Error al obtener citas");
+    return await response.json();
+  } catch (error) {
+    console.error("[Citas] Error al obtener citas:", error);
+    return [];
+  }
+}
+
+// Función para responder (aceptar/rechazar) cita
+export async function responderCita(appointmentId, status) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/property/updateAppointment`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ appointmentId, status })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("[Respuesta cita]", result.error);
+      return;
+    }
+
+    console.log("✅ Respuesta enviada:", result.message);
+    mostrarAlerta("Estado actualizado correctamente", "success");
+
+    // Recargar citas
+    const citas = await obtenerCitas();
+    renderCitas(citas, document.getElementById("contenedor-citas"));
+  } catch (error) {
+    console.error("[Actualizar cita]", error);
+    mostrarAlerta("Error al actualizar la cita", "error");
+  }
+}
+
+// Función para renderizar las citas en el contenedor
+function renderCitas(lista, contenedor) {
+  contenedor.innerHTML = "";
+
+  if (!lista.length) {
+    contenedor.innerHTML = "<p>No hay citas registradas.</p>";
+    return;
+  }
+
+  lista.forEach((cita) => {
+    const card = document.createElement("div");
+    card.classList.add("tarjeta-inmueble");
+
+    const estadoColor = cita.status === "Accepted" ? "green"
+                        : cita.status === "Rejected" ? "red"
+                        : "magenta";
+
+    let botones = "";
+    if (cita.status === "Pending") {
+      botones = `
+        <button class="boton-registrar" onclick="responderCita('${cita.email}', 'Accepted')">Aceptar</button>
+        <button class="boton-cancelar" onclick="responderCita('${cita.email}', 'Rejected')">Rechazar</button>
+      `;
+    }
+
+    card.innerHTML = `
+      <div class="contenido">
+        <h3>${cita.fullName}</h3>
+        <p><strong>Correo:</strong> ${cita.email}</p>
+        <p><strong>Teléfono:</strong> ${cita.phone}</p>
+        <p><strong>Estado:</strong> <span style="color:${estadoColor}; font-weight:bold;">${cita.status}</span></p>
+        ${cita.responseDate ? `<p><strong>Fecha de respuesta:</strong> ${cita.responseDate.split("T")[0]}</p>` : ""}
+        ${cita.visitDate ? `<p><strong>Fecha de visita:</strong> ${cita.visitDate.split("T")[0]}</p>` : ""}
+        ${botones}
+      </div>
+    `;
+
+    contenedor.appendChild(card);
+  });
+}
+
+window.responderCita = responderCita;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const contenedor = document.getElementById("contenedor-citas");
+  if (contenedor) {
+    const citas = await obtenerCitas();
+    renderCitas(citas, contenedor);
+  }
+});
