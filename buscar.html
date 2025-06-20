@@ -40,23 +40,35 @@
     import { obtenerInmuebles, renderInmuebles } from './js/inmuebles.js';
 
     document.addEventListener("DOMContentLoaded", async () => {
-      const contenedor = document.getElementById("contenedor-inmuebles");
-      const inputBusqueda = document.getElementById("input-busqueda");
+    const contenedor = document.getElementById("contenedor-inmuebles");
+    const inputBusqueda = document.getElementById("input-busqueda");
 
-      const inmuebles = await obtenerInmuebles(true); // mostrarTodos = true
-      renderInmuebles(inmuebles, contenedor);
+    // Obtener todos los inmuebles
+    const inmuebles = await obtenerInmuebles(true);
+    console.log('Inmuebles obtenidos:', JSON.stringify(inmuebles, null, 2));
 
-      inputBusqueda.addEventListener("input", () => {
-        const texto = inputBusqueda.value.toLowerCase().trim();
+    // Mapear los inmuebles para agregar el campo enlace
+    const inmueblesConEnlace = inmuebles.map(inmueble => {
+      const propertyId = inmueble.PropertyID || inmueble.propertyId;
+      console.log('Mapeando inmueble con PropertyID:', propertyId);
+      return {
+        ...inmueble,
+        enlace: `detalles?propertyId=${encodeURIComponent(propertyId)}` 
+      };
+    });
 
-        const filtrados = inmuebles.filter(i =>
-          i.Title.toLowerCase().includes(texto) ||
-          i.PropertyID.toLowerCase().includes(texto) ||
-          i.Address.toLowerCase().includes(texto) ||
-          i.Description.toLowerCase().includes(texto)
-        );
+    renderInmuebles(inmueblesConEnlace, contenedor);
 
-        renderInmuebles(filtrados, contenedor);
+    inputBusqueda.addEventListener("input", () => {
+      const texto = inputBusqueda.value.toLowerCase().trim();
+
+      const filtrados = inmueblesConEnlace.filter(i =>
+        i.Title.toLowerCase().includes(texto) ||
+        i.Address.toLowerCase().includes(texto) ||
+        i.Description.toLowerCase().includes(texto)
+      );
+
+      renderInmuebles(filtrados, contenedor);
       });
     });
   </script>
