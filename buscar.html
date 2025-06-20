@@ -51,6 +51,7 @@
 
         const filtrados = inmuebles.filter(i =>
           i.Title.toLowerCase().includes(texto) ||
+          i.PropertyID.toLowerCase().includes(texto) ||
           i.Address.toLowerCase().includes(texto) ||
           i.Description.toLowerCase().includes(texto)
         );

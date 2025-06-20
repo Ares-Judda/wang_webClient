@@ -26,6 +26,7 @@ export async function obtenerInmuebles(mostrarTodos = false) {
 export function renderInmuebles(lista, contenedor) {
   contenedor.innerHTML = "";
   lista.forEach((inmueble) => {
+    console.log('Renderizando inmueble con enlace:', inmueble.enlace);
     const card = document.createElement("div");
     card.classList.add("tarjeta-inmueble");
 
@@ -33,14 +34,10 @@ export function renderInmuebles(lista, contenedor) {
       <img src="assets/stockhouse.png" alt="Imagen inmueble">
       <div class="contenido">
         <h3>${inmueble.Title}</h3>
-        <p class="precio">$${parseFloat(inmueble.Price).toLocaleString(
-          "es-MX"
-        )} MXN</p>
+        <p class="precio">$${parseFloat(inmueble.Price).toLocaleString("es-MX")} MXN</p>
         <p class="direccion">${inmueble.Address}</p>
         <p class="estado">${inmueble.CurrentStatus}</p>
-        <a href="detalles.html?propertyId=${encodeURIComponent(
-          inmueble.PropertyID
-        )}" class="boton-detalles">Ver Detalles</a>
+      <a href="${inmueble.enlace}" class="boton-detalles">Ver Detalles</a>
       </div>
     `;
 
@@ -52,6 +49,8 @@ export function renderInmuebles(lista, contenedor) {
 export async function cargarDetallesInmueble() {
   const params = new URLSearchParams(window.location.search);
   const propertyId = params.get("propertyId");
+  console.log('Vamos a cargar los detalles'); // Depuración
+  console.log('PropertyId from URL:', propertyId); // Depuración
   if (!propertyId) return null;
 
   try {
@@ -60,8 +59,11 @@ export async function cargarDetallesInmueble() {
         propertyId
       )}`
     );
+    console.log('Fetch response status:', response.status); // Depuración
+    console.log('Fetch response URL:', response.url); // Depuración
     if (!response.ok) throw new Error("No se pudo cargar el inmueble");
     const inmueble = await response.json();
+    console.log('Fetched inmueble data:', inmueble);
 
     renderGaleria(inmueble.images || []);
     renderDetalles({
