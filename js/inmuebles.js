@@ -372,42 +372,6 @@ export function initMapaDesdeAPI(lat, lng) {
   new google.maps.Marker({ position: { lat, lng }, map: mapa });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const usuario = JSON.parse(localStorage.getItem("usuario"));
-  if (!usuario || usuario.Role !== "LANDLORD") {
-    mostrarAlerta("No tienes permisos para publicar inmuebles", "error");
-    setTimeout(() => {
-      window.location.href = "inmuebles.html";
-    }, 1500);
-    return;
-  }
-  const form = document.getElementById("form-publicar");
-  const inputFotos = document.getElementById("input-fotos");
-  const preview = document.getElementById("preview");
-
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      await registrarInmuebleConImagenes(form);
-    });
-
-    inputFotos?.addEventListener("change", () => {
-      preview.innerHTML = "";
-      const files = inputFotos.files;
-
-      for (let i = 0; i < files.length && i < 10; i++) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const img = document.createElement("img");
-          img.src = e.target.result;
-          img.classList.add("preview-image");
-          preview.appendChild(img);
-        };
-        reader.readAsDataURL(files[i]);
-      }
-    });
-  }
-});
 
 // Función para obtener citas desde el backend
 async function obtenerCitas() {
