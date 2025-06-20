@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalles del Inmueble</title>
+  <link rel="stylesheet" href="css/estilos.css" />
+</head>
+
+<body class="home-page">
+  <header class="navbar">
+    <div class="logo-nav">
+      <a href="inmuebles.html">
+        <img src="assets/wangLogoBanner.png" alt="Logo WANG" />
+      </a>
+    </div>
+    <nav class="menu">
+      <a href="cuenta.html">Cuenta</a>
+      <a href="citas.html">Citas</a>
+      <a href="buscar.html"><img src="assets/searchIcon.png" alt="Buscar" /></a>
+      <a href="publicar.html">Publicar</a>
+      <a href="contratos.html">Contratos</a>
+      <a href="index.html"><img src="assets/logoutIcon.png" alt="Salir" /></a>
+    </nav>
+  </header>
+
+  <main style="padding: 40px 20px;">
+    <section>
+      <div id="galeria" class="galeria"></div>
+      <div id="detalles-inmueble" class="detalles-inmueble"></div>
+      <div class="agenda-box">
+        <p>¿Te interesa el inmueble? ¡Agenda una cita!</p>
+        <button class="boton-registrar">Agendar</button>
+      </div>
+      <div id="map" class="mapa"></div>
+      <div id="seccion-preguntas" class="preguntas"></div>
+      <div id="seccion-resenas" class="resenas"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { cargarDetallesInmueble, initMapaDesdeAPI } from './js/inmuebles.js';
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const inmueble = await cargarDetallesInmueble();
+      if (inmueble?.latitud && inmueble?.longitud) {
+        initMapaDesdeAPI(inmueble.latitud, inmueble.longitud);
+      }
+
+      document.querySelector(".boton-registrar")?.addEventListener("click", async () => {
+        const usuario = JSON.parse(localStorage.getItem("usuario"));
+        if (!usuario) return alert("Debes iniciar sesión");
+
+        try {
+          const response = await fetch("http://localhost:8085/api/property/createAppointment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tenantId: usuario.UserID,
+              propertyId: inmueble.id,
+              visitDateTime: new Date().toISOString()
+            })
+          });
+
+          if (!response.ok) throw new Error("Error al agendar la cita");
+
+          alert("Cita agendada correctamente.");
+        } catch (error) {
+          alert("Error al agendar la cita");
+          console.error(error);
+        }
+      });
+    });
+  </script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJL-Z1wCqOMEeNfYRgPkGMySrkXL3XrHU"></script>
+</body>
+</html>
