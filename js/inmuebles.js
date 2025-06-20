@@ -217,7 +217,7 @@ function renderDetalles(inmueble) {
   `;
 }
 
-function renderPreguntas(preguntas, inmuebleId) {
+export function renderPreguntas(preguntas, inmuebleId) {
   const seccion = document.getElementById("seccion-preguntas");
   seccion.innerHTML = `
     <h3>Preguntas y respuestas</h3>
@@ -226,12 +226,22 @@ function renderPreguntas(preguntas, inmuebleId) {
       <button id="btn-preguntar" class="boton-registrar" aria-label="Enviar pregunta">Enviar</button>
     </div>
     <ul class="lista-preguntas">
-      ${preguntas.map(p =>
-        `<li><strong>${p.dateAsked}:</strong> ${p.question}<br><em>Respuesta:</em> ${p.answer || "Aún sin respuesta"}</li>`
-      ).join("")}
+      ${preguntas.map(p => {
+        const tieneRespuesta = p.answer && p.answer.trim() !== '';
+        return `
+          <li>
+            <strong>${p.dateAsked}:</strong> ${p.question}<br>
+            ${tieneRespuesta ? `<em>Respuesta:</em> ${p.answer} (${p.dateAnswered || 'Sin fecha'})` : `
+              <textarea id="respuesta-${p.faqId}" placeholder="Escribe tu respuesta aquí..." rows="3" style="width: 100%; margin: 10px 0;"></textarea>
+              <button class="boton-responder" data-faqid="${p.faqId}">Responder</button>
+            `}
+          </li>
+        `;
+      }).join("")}
     </ul>
   `;
 
+  // Evento para enviar nuevas preguntas
   document.getElementById("btn-preguntar")?.addEventListener("click", async () => {
     const pregunta = document.getElementById("input-pregunta").value.trim();
     if (!pregunta) {
@@ -261,6 +271,43 @@ function renderPreguntas(preguntas, inmuebleId) {
     } catch (e) {
       mostrarAlerta("No se pudo registrar la pregunta", "error");
     }
+  });
+
+  // Evento para responder preguntas
+  document.querySelectorAll('.boton-responder').forEach(button => {
+    button.addEventListener('click', async () => {
+      const faqId = button.getAttribute('data-faqid');
+      const textarea = document.getElementById(`respuesta-${faqId}`);
+      const answer = textarea.value.trim();
+
+      if (!answer) {
+        alert('Por favor, escribe una respuesta.');
+        return;
+      }
+
+      try {
+        const usuario = JSON.parse(localStorage.getItem("usuario"));
+        if (!usuario) {
+          alert('Debes iniciar sesión para responder.');
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/property/answer`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ faqId, answer })
+        });
+
+        if (!response.ok) throw new Error('Error al guardar la respuesta');
+
+        alert('Respuesta guardada exitosamente.');
+        // Actualizar la interfaz
+        textarea.parentElement.innerHTML = `<em>Respuesta:</em> ${answer} (Guardada el ${new Date().toLocaleString()})`;
+      } catch (error) {
+        alert('Error al guardar la respuesta');
+        console.error(error);
+      }
+    });
   });
 }
 

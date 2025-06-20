@@ -105,6 +105,21 @@ form textarea {
   margin-bottom: 10px;
   resize: vertical;
 }
+.pregunta-item textarea {
+  width: 100%;
+  margin: 10px 0;
+  padding: 5px;
+}
+.boton-responder {
+  background-color: #4CAF50;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+}
+.boton-responder:hover {
+  background-color: #45a049;
+}
 .boton-registrar {
   background-color: #247a5c;
   color: white;
