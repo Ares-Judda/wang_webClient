@@ -91,6 +91,20 @@ export async function cargarDetallesInmueble() {
   }
 }
 
+//Cargar los datos basicos de un inmueble
+export async function obtenerDetallesBasicosInmueble(propertyId) {
+  try {
+     console.error('Recibimos el propertyId:', propertyId);
+    const response = await fetch(`${API_BASE_URL}/property/getBasicPropertyDetails?propertyId=${encodeURIComponent(propertyId)}`);
+    if (!response.ok) throw new Error("No se pudo cargar el inmueble");
+    const inmueble = await response.json();
+    return inmueble;
+  } catch (error) {
+    console.error('Error en obtenerDetallesBasicosInmueble:', error);
+    throw error; 
+  }
+}
+
 // Paga el inmueble y genera un contrato
 export async function pagarInmuebleYGenerarContrato(idInmueble) {
   try {
@@ -166,20 +180,19 @@ export async function registrarInmuebleConImagenes(formElement) {
 
 export async function actualizarInmueble(id, data) {
   try {
-    const response = await fetch(`${API_BASE_URL}/inmuebles/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/property/updateProperty`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: data // Usar directamente el FormData
     });
 
     if (!response.ok) {
       const err = await response.json();
-      throw new Error(err.message || "No se pudo actualizar el inmueble");
+      throw new Error(err.error || "No se pudo actualizar el inmueble");
     }
 
-    return await response.json();
+    return await response.json(); // Devuelve el mensaje del backend
   } catch (error) {
-    console.error(error);
+    console.error("[Actualizar inmueble]", error);
     mostrarAlerta(error.message, "error");
     return null;
   }
@@ -193,6 +206,28 @@ function renderGaleria(imagenes) {
     image.src = img ? backendBase + img : "assets/stockhouse.png";
     image.alt = "Imagen inmueble";
     galeria.appendChild(image);
+  });
+}
+
+export function renderPreview(imagenes) {
+  const preview = document.getElementById("preview");
+  if (!preview) {
+    console.warn("Contenedor con id 'preview' no encontrado");
+    return;
+  }
+  preview.innerHTML = "";
+  imagenes.forEach((img) => {
+    const image = document.createElement("img");
+    if (typeof img === "string") {
+      image.src = img ? `${backendBase}${img}` : "assets/stockhouse.png";
+      image.alt = "Imagen inmueble";
+    } else {
+      image.src = "assets/stockhouse.png";
+      image.alt = "Imagen no disponible";
+    }
+    image.style.maxWidth = "150px";
+    image.style.margin = "10px";
+    preview.appendChild(image);
   });
 }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -73,7 +74,9 @@
   <script type="module">
     import {
       registrarInmuebleConImagenes,
-      actualizarInmueble
+      actualizarInmueble,
+      obtenerDetallesBasicosInmueble,
+      renderPreview
     } from './js/inmuebles.js';
     import { mostrarAlerta } from './js/utils.js';
 
@@ -105,6 +108,7 @@
         }
       });
 
+      console.log('inmuebleId:', inmuebleId);
       if (form && !form.dataset.listenerAttached && !inmuebleId) {
         form.dataset.listenerAttached = "true";
         form.addEventListener('submit', async (e) => {
@@ -116,34 +120,24 @@
       // Si estamos editando
       if (inmuebleId) {
         try {
-          const response = await fetch(`${backendBase}/property/propertyDetails?propertyId=${inmuebleId}`);
-          if (!response.ok) throw new Error("No se pudo cargar el inmueble");
-          const inmueble = await response.json();
+          const inmueble = await obtenerDetallesBasicosInmueble(inmuebleId);
 
           document.getElementById("titulo").value = inmueble.title || "";
-          document.getElementById("tipo").value = inmueble.categoryName === "Casa" ? "Casa" : "Departamento";
+          document.getElementById("tipo").value = inmueble.categoryId === 1 ? "Casa" : "Departamento";
           document.getElementById("direccion").value = inmueble.address || "";
           document.getElementById("latitud").value = inmueble.latitude || "";
           document.getElementById("longitud").value = inmueble.longitude || "";
           document.getElementById("precio").value = inmueble.price || "";
           document.getElementById("descripcion").value = inmueble.description || "";
 
-          preview.innerHTML = "";
-          (inmueble.images || []).forEach(url => {
-            const img = document.createElement('img');
-            img.src = backendBase + url;
-            img.alt = 'Imagen actual';
-            img.style.maxWidth = '150px';
-            img.style.margin = '10px';
-            preview.appendChild(img);
-          });
+          renderPreview(inmueble.images || []);
 
-          // Agregar evento submit para edición
           if (form && !form.dataset.listenerAttached) {
             form.dataset.listenerAttached = "true";
             form.addEventListener("submit", async (e) => {
               e.preventDefault();
               const data = {
+                currentTitle: inmueble.title,
                 title: document.getElementById("titulo").value.trim(),
                 categoryId: document.getElementById("tipo").value === "Casa" ? 1 : 2,
                 address: document.getElementById("direccion").value.trim(),
@@ -152,7 +146,23 @@
                 price: document.getElementById("precio").value.trim(),
                 description: document.getElementById("descripcion").value.trim()
               };
-              const res = await actualizarInmueble(inmuebleId, data);
+              const inputFotos = document.getElementById("input-fotos");
+              const formData = new FormData();
+              formData.append("currentTitle", data.currentTitle);
+              if (data.title !== data.currentTitle) formData.append("title", data.title);
+              formData.append("categoryId", data.categoryId);
+              formData.append("address", data.address);
+              formData.append("latitude", data.latitude);
+              formData.append("longitude", data.longitude);
+              formData.append("price", data.price);
+              formData.append("description", data.description);
+              if (inputFotos.files) {
+                for (let i = 0; i < inputFotos.files.length && i < 10; i++) {
+                  formData.append("images", inputFotos.files[i]);
+                }
+              }
+
+              const res = await actualizarInmueble(inmuebleId, formData); 
               if (res) {
                 mostrarAlerta("Inmueble actualizado correctamente", "success");
                 localStorage.removeItem("inmuebleEditar");
@@ -168,4 +178,5 @@
     });
   </script>
 </body>
+
 </html>
