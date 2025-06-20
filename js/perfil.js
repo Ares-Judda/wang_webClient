@@ -1,129 +1,143 @@
 import { API_BASE_URL } from "./utils.js";
-import { mostrarAlerta } from './utils.js';
+import { mostrarAlerta } from "./utils.js";
 
 // Registro de nuevo usuario
-const formRegistro = document.getElementById('form-registro');
-formRegistro?.addEventListener('submit', async function (e) {
+const formRegistro = document.getElementById("form-registro");
+formRegistro?.addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const nombreCompleto = document.getElementById('nombre').value.trim();
-  const telefono = document.getElementById('telefono').value.trim();
-  const direccion = document.getElementById('direccion').value.trim();
-  const rol = document.getElementById('rol').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const password = document.getElementById('password').value;
+  const nombreCompleto = document.getElementById("nombre").value.trim();
+  const telefono = document.getElementById("telefono").value.trim();
+  const direccion = document.getElementById("direccion").value.trim();
+  const rol = document.getElementById("rol").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-  if (!nombreCompleto || !telefono || !direccion || !rol || !email || !password) {
-    mostrarAlerta('Todos los campos son obligatorios', 'warning');
+  if (
+    !nombreCompleto ||
+    !telefono ||
+    !direccion ||
+    !rol ||
+    !email ||
+    !password
+  ) {
+    mostrarAlerta("Todos los campos son obligatorios", "warning");
     return;
   }
 
-  const partesNombre = nombreCompleto.split(' ');
+  const partesNombre = nombreCompleto.split(" ");
   const name = partesNombre[0];
-  const lastname = partesNombre.slice(1).join(' ') || 'Apellido';
+  const lastname = partesNombre.slice(1).join(" ") || "Apellido";
 
-  const userName = email.split('@')[0];
+  const userName = email.split("@")[0];
 
   const formData = new FormData();
-  formData.append('name', name);
-  formData.append('lastname', lastname);
-  formData.append('userName', userName);
-  formData.append('phone', telefono);
-  formData.append('address', direccion);
-  formData.append('role', rol);
-  formData.append('email', email);
-  formData.append('password', password);
+  formData.append("name", name);
+  formData.append("lastname", lastname);
+  formData.append("userName", userName);
+  formData.append("phone", telefono);
+  formData.append("address", direccion);
+  formData.append("role", rol);
+  formData.append("email", email);
+  formData.append("password", password);
 
   try {
     const response = await fetch(`${API_BASE_URL}/user/register`, {
-      method: 'POST',
-      body: formData
+      method: "POST",
+      body: formData,
     });
 
     const result = await response.json();
     if (!response.ok) {
-      mostrarAlerta(result.error || 'Error en el registro', 'error');
+      mostrarAlerta(result.error || "Error en el registro", "error");
       return;
     }
 
-    mostrarAlerta('Usuario registrado exitosamente', 'success');
+    mostrarAlerta("Usuario registrado exitosamente", "success");
     setTimeout(() => {
-      window.location.href = 'index.html';
+      window.location.href = "index.html";
     }, 1500);
   } catch (error) {
     console.error(error);
-    mostrarAlerta('Error de conexión con el servidor', 'error');
+    mostrarAlerta("Error de conexión con el servidor", "error");
   }
 });
 
 // Cambio de contraseña
-const formReset = document.getElementById('form-password-reset');
-formReset?.addEventListener('submit', async function (e) {
+const formReset = document.getElementById("form-password-reset");
+formReset?.addEventListener("submit", async function (e) {
   e.preventDefault();
 
-  const email = document.getElementById('email').value.trim();
-  const newPassword = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirm-password').value;
+  const email = document.getElementById("email").value.trim();
+  const newPassword = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirm-password").value;
 
   if (!email || !newPassword || !confirmPassword) {
-    mostrarAlerta('Todos los campos son obligatorios', 'warning');
+    mostrarAlerta("Todos los campos son obligatorios", "warning");
     return;
   }
 
   try {
     const response = await fetch(`${API_BASE_URL}/user/changePassword`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, newPassword, confirmPassword })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, newPassword, confirmPassword }),
     });
 
     const result = await response.json();
 
     if (!response.ok) {
-      mostrarAlerta(result.error || 'Error al cambiar la contraseña', 'error');
+      mostrarAlerta(result.error || "Error al cambiar la contraseña", "error");
       return;
     }
 
-    mostrarAlerta(result.message || 'Contraseña actualizada exitosamente', 'success');
+    mostrarAlerta(
+      result.message || "Contraseña actualizada exitosamente",
+      "success"
+    );
     setTimeout(() => {
-      window.location.href = 'index.html';
+      window.location.href = "index.html";
     }, 1500);
   } catch (error) {
     console.error(error);
-    mostrarAlerta('Error de conexión con el servidor', 'error');
+    mostrarAlerta("Error de conexión con el servidor", "error");
   }
 });
 
 // Carga inmuebles asociados al usuario logueado
-document.addEventListener('DOMContentLoaded', async () => {
-  const contenedor = document.getElementById('contenedor-inmuebles');
+document.addEventListener("DOMContentLoaded", async () => {
+  const contenedor = document.getElementById("contenedor-inmuebles");
   if (!contenedor) return;
 
-  const usuario = JSON.parse(localStorage.getItem('usuario'));
-  if (!usuario?.id || !usuario?.rol) {
-    mostrarAlerta('No se pudo obtener la información del usuario.', 'error');
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  if (!usuario?.UserID || !usuario?.Role) {
+    mostrarAlerta("No se pudo obtener la información del usuario.", "error");
     return;
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}/inmuebles/autor/${usuario.id}`);
-    if (!response.ok) throw new Error('Error al obtener inmuebles');
+    const response = await fetch(
+      `${API_BASE_URL}/inmuebles/autor/${usuario.UserID}`
+    );
+    if (!response.ok) throw new Error("Error al obtener inmuebles");
 
     const inmuebles = await response.json();
-    contenedor.innerHTML = '';
+    contenedor.innerHTML = "";
 
-    inmuebles.forEach(inmueble => {
-      const tarjeta = document.createElement('div');
-      tarjeta.className = 'tarjeta-inmueble';
+    inmuebles.forEach((inmueble) => {
+      const tarjeta = document.createElement("div");
+      tarjeta.className = "tarjeta-inmueble";
       tarjeta.innerHTML = `
-        <img src="${inmueble.imagen || 'assets/stockhouse.png'}" alt="Imagen del inmueble" />
+        <img src="${
+          inmueble.imagen || "assets/stockhouse.png"
+        }" alt="Imagen del inmueble" />
         <div class="contenido">
           <h3>${inmueble.titulo}</h3>
-          <p class="precio">$${inmueble.precio.toLocaleString('es-MX')} MXN</p>
+          <p class="precio">$${inmueble.precio.toLocaleString("es-MX")} MXN</p>
           <p class="direccion">${inmueble.direccion}</p>
           <p class="agente">${inmueble.autor}</p>
           <button class="boton-registrar" onclick="redirigir(${inmueble.id})">
-            ${usuario.rol === 'Arrendatario' ? 'Pagar' : 'Modificar'}
+            ${usuario.Role?.toLowerCase() === "tenant" ? "Pagar" : "Modificar"}
           </button>
         </div>
       `;
@@ -131,39 +145,144 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   } catch (error) {
     console.error(error);
-    mostrarAlerta('No se pudieron cargar los inmuebles', 'error');
+    mostrarAlerta("No se pudieron cargar los inmuebles", "error");
   }
 });
 
 // Modificar cuenta
-document.addEventListener("DOMContentLoaded", () => {
-  const usuario = JSON.parse(localStorage.getItem("usuario")) || {};
-  document.getElementById("nombre").value = usuario.nombre || "";
-  document.getElementById("telefono").value = usuario.telefono || "";
-  document.getElementById("direccion").value = usuario.direccion || "";
-  document.getElementById("rol").value = usuario.rol || "";
-  document.getElementById("email").value = usuario.email || "";
-  document.getElementById("password").value = usuario.password || ""; // Solo si se requiere mostrar
+document.addEventListener("DOMContentLoaded", async () => {
+  const formModificar = document.getElementById("form-modificar");
+  if (!formModificar) return;
 
-  document.getElementById("form-modificar")?.addEventListener("submit", async function (e) {
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const token = localStorage.getItem("token");
+
+  if (!usuario || !usuario.Email || !token) {
+    mostrarAlerta("Debe iniciar sesión para modificar su cuenta", "error");
+    window.location.href = "index.html";
+    return;
+  }
+
+  try {
+    const perfilResponse = await fetch(
+      `${API_BASE_URL}/user/profile?email=${usuario.Email}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const result = await perfilResponse.json();
+
+    if (!perfilResponse.ok) {
+      mostrarAlerta(result.error || "No se pudo cargar el perfil", "error");
+      return;
+    }
+
+    const user = result.user;
+    document.getElementById("nombre").value = user.FullName || "";
+    document.getElementById("telefono").value = user.Phone || "";
+    document.getElementById("direccion").value = user.Address || "";
+    document.getElementById("rol").value =
+      user.Role?.toLowerCase() === "landlord" ? "arrendador" : "arrendatario";
+    document.getElementById("email").value = user.Email || "";
+    document.getElementById("password").value = "********"; // solo visual
+
+    if (user.ProfileImageUrl) {
+      const preview = document.getElementById("preview-imagen");
+      const img = document.createElement("img");
+      img.src = user.ProfileImageUrl.startsWith("http")
+        ? user.ProfileImageUrl
+        : `${API_BASE_URL}${user.ProfileImageUrl}`;
+      img.classList.add("preview-image");
+      preview.appendChild(img);
+    }
+
+    document.getElementById("imagen")?.addEventListener("change", function () {
+      const preview = document.getElementById("preview-imagen");
+      preview.innerHTML = "";
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.classList.add("preview-image");
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    mostrarAlerta("Error al cargar datos del perfil", "error");
+  }
+
+  formModificar.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const nombre = document.getElementById("nombre").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-    const direccion = document.getElementById("direccion").value.trim();
+    const fullName = document.getElementById("nombre").value.trim();
+    const phone = document.getElementById("telefono").value.trim();
+    const address = document.getElementById("direccion").value.trim();
+
+    if (!fullName || !phone || !address) {
+      mostrarAlerta(
+        "¡Hay campos vacíos! Complételos para continuar",
+        "warning"
+      );
+      return;
+    }
+
+    const email = document.getElementById("email").value.trim();
+    const imagen = document.getElementById("imagen").files[0];
 
     try {
-      const response = await fetch(`${API_BASE_URL}/accounts/${usuario.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName: nombre, phone: telefono, address: direccion })
+      const formData = new FormData();
+      formData.append("fullName", fullName);
+      formData.append("phone", phone);
+      formData.append("address", address);
+      formData.append("email", email);
+      if (imagen) formData.append("imagen", imagen);
+
+      const response = await fetch(`${API_BASE_URL}/user/updateProfile`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // No pongas Content-Type con FormData
+        },
+        body: formData,
       });
 
-      if (!response.ok) throw new Error();
-      mostrarAlerta("Cuenta actualizada correctamente", "success");
-      window.location.href = "cuenta.html";
-    } catch {
-      mostrarAlerta("No se pudo actualizar la cuenta", "error");
+      const result = await response.json();
+
+      if (!response.ok) {
+        mostrarAlerta(
+          result.error || "No se pudo actualizar la cuenta",
+          "error"
+        );
+        return;
+      }
+
+      mostrarAlerta(
+        result.message || "Cuenta actualizada correctamente",
+        "success"
+      );
+
+      // Actualizar localStorage
+      const updatedUser = {
+        ...usuario,
+        FullName: fullName,
+        Phone: phone,
+        Address: address,
+      };
+      localStorage.setItem("usuario", JSON.stringify(updatedUser));
+
+      setTimeout(() => (window.location.href = "cuenta.html"), 1500);
+    } catch (error) {
+      console.error(error);
+      mostrarAlerta("Error de conexión", "error");
     }
   });
 });

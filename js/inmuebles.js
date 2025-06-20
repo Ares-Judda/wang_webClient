@@ -222,41 +222,46 @@ function renderPreguntas(preguntas, inmuebleId) {
   seccion.innerHTML = `
     <h3>Preguntas y respuestas</h3>
     <div class="pregunta-form">
-      <input type="text" id="input-pregunta" placeholder="e.j. ¿Cuántas habitaciones tiene?" />
-      <button id="btn-preguntar">Enviar</button>
+      <input type="text" id="input-pregunta" placeholder="e.j. ¿Cuántas habitaciones tiene?" aria-label="Escribe tu pregunta sobre el inmueble"/>
+      <button id="btn-preguntar" class="boton-registrar" aria-label="Enviar pregunta">Enviar</button>
     </div>
-    <ul>
-      ${preguntas
-        .map(
-          (p) =>
-            `<li><strong>${p.dateAsked}:</strong> ${p.question}<br><em>Respuesta:</em> ${p.answer}</li>`
-        )
-        .join("")}
+    <ul class="lista-preguntas">
+      ${preguntas.map(p =>
+        `<li><strong>${p.dateAsked}:</strong> ${p.question}<br><em>Respuesta:</em> ${p.answer || "Aún sin respuesta"}</li>`
+      ).join("")}
     </ul>
   `;
 
-  document
-    .getElementById("btn-preguntar")
-    ?.addEventListener("click", async () => {
-      const pregunta = document.getElementById("input-pregunta").value.trim();
-      if (!pregunta) return;
-      try {
-        const usuario = JSON.parse(localStorage.getItem("usuario"));
-        const res = await fetch(`${API_BASE_URL}/preguntas`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            idInmueble: inmuebleId,
-            pregunta,
-            idUsuario: usuario.id,
-          }),
-        });
-        if (!res.ok) throw new Error();
-        location.reload();
-      } catch {
-        mostrarAlerta("No se pudo registrar la pregunta", "error");
+  document.getElementById("btn-preguntar")?.addEventListener("click", async () => {
+    const pregunta = document.getElementById("input-pregunta").value.trim();
+    if (!pregunta) {
+      mostrarAlerta("Escribe una pregunta válida", "warning");
+      return;
+    }
+
+    try {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      const res = await fetch(`${API_BASE_URL}/property/faq`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tenantId: usuario.UserID,
+          propertyId: inmuebleId,
+          question: pregunta,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Error al registrar pregunta");
       }
-    });
+
+      mostrarAlerta("Pregunta enviada", "success");
+      location.reload();
+    } catch (e) {
+      mostrarAlerta("No se pudo registrar la pregunta", "error");
+    }
+  });
 }
 
 function renderResenas(resenas, inmuebleId) {
@@ -264,41 +269,45 @@ function renderResenas(resenas, inmuebleId) {
   seccion.innerHTML = `
     <h3>Reseñas del Inmueble y/o Arrendador</h3>
     <div class="review-form">
-      <input type="text" id="input-resena" placeholder="e.j. ¡Muy buen lugar para vivir con las 3B!" />
-      <input type="number" id="input-calificacion" placeholder="e.j. 5" min="1" max="5" />
-      <button id="btn-resena">Dar reseña</button>
+      <input type="text" id="input-resena" placeholder="e.j. ¡Muy buen lugar para vivir con las 3B!" aria-label="Comentario de reseña"/>
+      <input type="number" id="input-calificacion" placeholder="e.j. 5" min="1" max="5" aria-label="Calificación del 1 al 5"/>
+      <button id="btn-resena" class="boton-registrar" aria-label="Enviar reseña">Dar reseña</button>
     </div>
-    ${resenas
-      .map(
-        (r) => `
-      <div>
-        <p class="resena-usuario">Usuario:</p>
-        <p>${r.comment}</p>
-        <p><strong>Calificación:</strong> ${r.rating}</p>
-      </div>`
-      )
-      .join("")}
+    ${resenas.map(r => `
+      <div class="tarjeta-inmueble" role="region" aria-label="Reseña de usuario">
+        <p class="resena-usuario"><strong>Usuario:</strong> ${r.userName || "Anónimo"}</p>
+        <p><strong>Comentario:</strong> ${r.comment}</p>
+        <p><strong>Calificación:</strong> ${r.rating} ⭐</p>
+      </div>`).join("")}
   `;
 
   document.getElementById("btn-resena")?.addEventListener("click", async () => {
     const comentario = document.getElementById("input-resena").value.trim();
-    const calificacion = parseInt(
-      document.getElementById("input-calificacion").value
-    );
-    if (!comentario || isNaN(calificacion)) return;
+    const calificacion = parseInt(document.getElementById("input-calificacion").value);
+    if (!comentario || isNaN(calificacion)) {
+      mostrarAlerta("Debes completar ambos campos", "warning");
+      return;
+    }
+
     try {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
-      const res = await fetch(`${API_BASE_URL}/resenas`, {
+      const res = await fetch(`${API_BASE_URL}/property/createReview`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          idInmueble: inmuebleId,
-          comentario,
-          calificacion,
-          idUsuario: usuario.id,
+          propertyId: inmuebleId,
+          comment: comentario,
+          rating: calificacion,
+          tenantId: usuario.UserID,
         }),
       });
-      if (!res.ok) throw new Error();
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Error al registrar reseña");
+      }
+
+      mostrarAlerta("Reseña enviada", "success");
       location.reload();
     } catch {
       mostrarAlerta("No se pudo registrar la reseña", "error");
@@ -348,5 +357,114 @@ document.addEventListener("DOMContentLoaded", () => {
         reader.readAsDataURL(files[i]);
       }
     });
+  }
+});
+
+// Función para obtener citas desde el backend
+async function obtenerCitas() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/property/getAppointments`);
+    if (!response.ok) throw new Error("Error al obtener citas");
+    return await response.json();
+  } catch (error) {
+    console.error("[Citas] Error al obtener citas:", error);
+    return [];
+  }
+}
+
+// Función para responder (aceptar/rechazar) cita
+export async function responderCita(appointmentId, status) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/property/updateAppointment`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ appointmentId, status })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("[Respuesta cita]", result.error);
+      return;
+    }
+
+    console.log("✅ Respuesta enviada:", result.message);
+    mostrarAlerta("Estado actualizado correctamente", "success");
+
+    // Recargar citas
+    const citas = await obtenerCitas();
+    renderCitas(citas, document.getElementById("contenedor-citas"));
+  } catch (error) {
+    console.error("[Actualizar cita]", error);
+    mostrarAlerta("Error al actualizar la cita", "error");
+  }
+}
+
+// Función para renderizar las citas en el contenedor
+function renderCitas(lista, contenedor) {
+  contenedor.innerHTML = "";
+
+  if (!lista.length) {
+    contenedor.innerHTML = "<p role='status' aria-live='polite'>No hay citas registradas.</p>";
+    return;
+  }
+
+  lista.forEach((cita) => {
+    const card = document.createElement("article");
+    card.classList.add("tarjeta-inmueble");
+    card.setAttribute("role", "group");
+    card.setAttribute("aria-label", `Cita con ${cita.fullName}`);
+
+    const estadoColor = cita.status === "Accepted" ? "#2e7d32"
+                        : cita.status === "Rejected" ? "#d32f2f"
+                        : "#8e24aa";
+
+    let botones = "";
+    if (cita.status === "Pending") {
+      botones = `
+        <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 10px;">
+          <button 
+            onclick="responderCita('${cita.appointmentId}', 'Accepted')" 
+            style="background-color: #2e7d32; color: white; font-weight: bold; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer;"
+            aria-label="Aceptar cita con ${cita.fullName}">
+            Aceptar
+          </button>
+          <button 
+            onclick="responderCita('${cita.appointmentId}', 'Rejected')" 
+            style="background-color: #d32f2f; color: white; font-weight: bold; border: none; padding: 12px; width: 100%; border-radius: 4px; font-size: 16px; cursor: pointer;"
+            aria-label="Rechazar cita con ${cita.fullName}">
+            Rechazar
+          </button>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      <div class="contenido">
+        <h3 id="cita-${cita.appointmentId}">${cita.fullName}</h3>
+        <p><strong>Correo:</strong> <a href="mailto:${cita.email}" aria-describedby="cita-${cita.appointmentId}">${cita.email}</a></p>
+        <p><strong>Teléfono:</strong> <a href="tel:${cita.phone}">${cita.phone}</a></p>
+        <p><strong>Estado:</strong> 
+          <span style="color:${estadoColor}; font-weight:bold;" aria-live="polite">${cita.status}</span>
+        </p>
+        ${cita.responseDate ? `<p><strong>Fecha de respuesta:</strong> ${cita.responseDate.split("T")[0]}</p>` : ""}
+        ${cita.visitDate ? `<p><strong>Fecha de visita:</strong> ${cita.visitDate.split("T")[0]}</p>` : ""}
+        ${botones}
+      </div>
+    `;
+
+    contenedor.appendChild(card);
+  });
+}
+
+window.responderCita = responderCita;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const contenedor = document.getElementById("contenedor-citas");
+  if (contenedor) {
+    const citas = await obtenerCitas();
+    renderCitas(citas, contenedor);
   }
 });

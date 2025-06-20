@@ -666,3 +666,40 @@ body.home-page {
   border-color: #3e8ed0;
   box-shadow: 0 0 8px rgba(62, 142, 208, 0.5);
 }
+
+/* === Accesibilidad: Enfoque visible para navegación con teclado === */
+button:focus,
+a:focus {
+  outline: 3px solid #f2c94c;
+  outline-offset: 2px;
+}
+
+/* === Accesibilidad: Mejor contraste en botón cancelar === */
+.boton-cancelar {
+  background-color: #b71c1c; /* más oscuro para mejor contraste */
+}
+.boton-cancelar:focus {
+  outline: 3px solid #f2c94c;
+}
+
+/* === Accesibilidad: Tamaño mínimo de fuente legible === */
+body {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.tarjeta-inmueble p {
+  font-size: 15px;
+}
+
+/* === Accesibilidad: Estilo para botones deshabilitados === */
+button:disabled {
+  background-color: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+.deshabilitado {
+  pointer-events: none;
+  background-color: #e0e0e0;
+  color: #888;
+}
