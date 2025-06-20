@@ -2,10 +2,11 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dar de alta Inmueble</title>
   <link rel="stylesheet" href="css/estilos.css" />
 </head>
+
 <body class="home-page">
   <header class="navbar">
     <div class="logo-nav">
@@ -16,14 +17,10 @@
     <nav class="menu">
       <a href="cuenta.html">Cuenta</a>
       <a href="citas.html">Citas</a>
-      <a href="buscar.html">
-        <img src="assets/searchIcon.png" alt="Buscar" />
-      </a>
+      <a href="buscar.html"><img src="assets/searchIcon.png" alt="Buscar" /></a>
       <a href="publicar.html" style="color: #f2c94c;">Publicar</a>
       <a href="contratos.html">Contratos</a>
-      <a href="index.html">
-        <img src="assets/logoutIcon.png" alt="Salir" />
-      </a>
+      <a href="index.html"><img src="assets/logoutIcon.png" alt="Salir" /></a>
     </nav>
   </header>
 
@@ -55,33 +52,120 @@
         <label for="descripcion">Descripción:</label>
         <textarea id="descripcion" rows="6" required></textarea>
 
-        <div id="campo-vender-a" style="display: none;">
-          <label for="cliente">Vender a:</label>
-          <select id="cliente">
-            <option value="">-- Selecciona una cuenta para venderle el inmueble --</option>
-          </select>
-        </div>
-
         <label for="fotos">Fotografías:</label>
         <div class="upload-box" onclick="document.getElementById('input-fotos').click();">
           <img src="assets/uploadIcon.png" alt="Subir imagen" />
           <p>Haz clic para subir imágenes (máx. 10)</p>
-          <input type="file" id="input-fotos" title="input-fotos" accept="image/*" multiple>
+          <input type="file" id="input-fotos" title="input-fotos" name="input-fotos" accept="image/*" multiple>
         </div>
 
         <div id="preview" class="preview-container"></div>
 
         <button type="submit" class="boton-registrar">Guardar</button>
-
-        <button type="button" id="boton-eliminar" class="boton-cancelar" style="background-color: #e6007e; display: none;">
-          Eliminar
-        </button>
-
         <button type="button" class="boton-cancelar" onclick="window.location.href='inmuebles.html'">Cancelar</button>
       </form>
+
+      <!-- Mueve la alerta fuera del form para que no se reinicie -->
+      <div id="alerta" class="alerta" style="display:none;"></div>
     </section>
   </main>
 
-  <script type="module" src="js/inmuebles.js"></script>
+  <script type="module">
+    import {
+      registrarInmuebleConImagenes,
+      actualizarInmueble
+    } from './js/inmuebles.js';
+    import { mostrarAlerta } from './js/utils.js';
+
+    const backendBase = "http://localhost:8085";
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const inmuebleId = localStorage.getItem("inmuebleEditar");
+      const form = document.getElementById('form-publicar');
+      const inputFotos = document.getElementById("input-fotos");
+      const preview = document.getElementById("preview");
+
+      // Cargar imagenes seleccionadas nuevas
+      inputFotos?.addEventListener("change", () => {
+        preview.innerHTML = "";
+        const files = inputFotos.files;
+        if (files && files.length > 0) {
+          [...files].forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const img = document.createElement("img");
+              img.src = e.target.result;
+              img.alt = "Vista previa";
+              img.style.maxWidth = "150px";
+              img.style.margin = "10px";
+              preview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+      });
+
+      if (form && !form.dataset.listenerAttached && !inmuebleId) {
+        form.dataset.listenerAttached = "true";
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await registrarInmuebleConImagenes(form);
+        });
+      }
+
+      // Si estamos editando
+      if (inmuebleId) {
+        try {
+          const response = await fetch(`${backendBase}/property/propertyDetails?propertyId=${inmuebleId}`);
+          if (!response.ok) throw new Error("No se pudo cargar el inmueble");
+          const inmueble = await response.json();
+
+          document.getElementById("titulo").value = inmueble.title || "";
+          document.getElementById("tipo").value = inmueble.categoryName === "Casa" ? "Casa" : "Departamento";
+          document.getElementById("direccion").value = inmueble.address || "";
+          document.getElementById("latitud").value = inmueble.latitude || "";
+          document.getElementById("longitud").value = inmueble.longitude || "";
+          document.getElementById("precio").value = inmueble.price || "";
+          document.getElementById("descripcion").value = inmueble.description || "";
+
+          preview.innerHTML = "";
+          (inmueble.images || []).forEach(url => {
+            const img = document.createElement('img');
+            img.src = backendBase + url;
+            img.alt = 'Imagen actual';
+            img.style.maxWidth = '150px';
+            img.style.margin = '10px';
+            preview.appendChild(img);
+          });
+
+          // Agregar evento submit para edición
+          if (form && !form.dataset.listenerAttached) {
+            form.dataset.listenerAttached = "true";
+            form.addEventListener("submit", async (e) => {
+              e.preventDefault();
+              const data = {
+                title: document.getElementById("titulo").value.trim(),
+                categoryId: document.getElementById("tipo").value === "Casa" ? 1 : 2,
+                address: document.getElementById("direccion").value.trim(),
+                latitude: document.getElementById("latitud").value.trim(),
+                longitude: document.getElementById("longitud").value.trim(),
+                price: document.getElementById("precio").value.trim(),
+                description: document.getElementById("descripcion").value.trim()
+              };
+              const res = await actualizarInmueble(inmuebleId, data);
+              if (res) {
+                mostrarAlerta("Inmueble actualizado correctamente", "success");
+                localStorage.removeItem("inmuebleEditar");
+                setTimeout(() => window.location.href = "cuenta.html", 1500);
+              }
+            });
+          }
+        } catch (err) {
+          console.error(err);
+          mostrarAlerta("No se pudo cargar el inmueble a editar", "error");
+        }
+      }
+    });
+  </script>
 </body>
 </html>

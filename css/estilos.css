@@ -718,3 +718,17 @@ button:disabled {
   background-color: #e0e0e0;
   color: #888;
 }
+
+.fila-horizontal {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 24px;
+  padding: 24px;
+}
+
+.fila-horizontal .tarjeta-inmueble {
+  flex: 0 0 auto;
+  min-width: 300px;
+}

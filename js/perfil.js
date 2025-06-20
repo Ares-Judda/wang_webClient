@@ -105,7 +105,7 @@ formReset?.addEventListener("submit", async function (e) {
   }
 });
 
-// Carga inmuebles asociados al usuario logueado
+// Cargar inmuebles del usuario
 document.addEventListener("DOMContentLoaded", async () => {
   const contenedor = document.getElementById("contenedor-inmuebles");
   if (!contenedor) return;
@@ -117,27 +117,31 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
-    const response = await fetch(
-      `${API_BASE_URL}/inmuebles/autor/${usuario.UserID}`
-    );
+    const response = await fetch(`${API_BASE_URL}/property/getProperties`);
     if (!response.ok) throw new Error("Error al obtener inmuebles");
 
     const inmuebles = await response.json();
+
+    // ✅ Filtrar los inmuebles cuyo OwnerID coincida con el usuario actual
+    const propios = inmuebles.filter(i => i.OwnerID === usuario.UserID);
     contenedor.innerHTML = "";
 
-    inmuebles.forEach((inmueble) => {
+    propios.forEach((inmueble) => {
       const tarjeta = document.createElement("div");
       tarjeta.className = "tarjeta-inmueble";
+
+      const imageUrl = inmueble.ImageURL
+        ? "http://localhost:8085" + inmueble.ImageURL
+        : "assets/stockhouse.png";
+
       tarjeta.innerHTML = `
-        <img src="${inmueble.imagen || "assets/stockhouse.png"
-        }" alt="Imagen del inmueble" />
+        <img src="${imageUrl}" alt="Imagen del inmueble" />
         <div class="contenido">
-          <h3>${inmueble.titulo}</h3>
-          <p class="precio">$${inmueble.precio.toLocaleString("es-MX")} MXN</p>
-          <p class="direccion">${inmueble.direccion}</p>
-          <p class="agente">${inmueble.autor}</p>
-          <button class="boton-registrar" onclick="redirigir(${inmueble.id})">
-            ${usuario.Role?.toLowerCase() === "tenant" ? "Pagar" : "Modificar"}
+          <h3>${inmueble.Title}</h3>
+          <p class="precio">$${parseFloat(inmueble.Price).toLocaleString("es-MX")} MXN</p>
+          <p class="direccion">${inmueble.Address}</p>
+          <button class="boton-registrar" onclick="redirigir('${inmueble.PropertyID}')">
+            Modificar
           </button>
         </div>
       `;
@@ -148,6 +152,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     mostrarAlerta("No se pudieron cargar los inmuebles", "error");
   }
 });
+
+// función para redirigir
+window.redirigir = function (propertyId) {
+  localStorage.setItem("inmuebleEditar", propertyId);
+  window.location.href = "publicar.html";
+};
 
 // Modificar cuenta
 document.addEventListener("DOMContentLoaded", async () => {

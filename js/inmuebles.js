@@ -91,6 +91,7 @@ export async function cargarDetallesInmueble() {
   }
 }
 
+// Paga el inmueble y genera un contrato
 export async function pagarInmuebleYGenerarContrato(idInmueble) {
   try {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -113,6 +114,7 @@ export async function pagarInmuebleYGenerarContrato(idInmueble) {
   }
 }
 
+// Registra un nuevo inmueble con imágenes
 export async function registrarInmuebleConImagenes(formElement) {
   try {
     const usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -123,32 +125,17 @@ export async function registrarInmuebleConImagenes(formElement) {
 
     const formData = new FormData();
     formData.append("title", formElement.querySelector("#titulo").value.trim());
-    formData.append(
-      "categoryId",
-      formElement.querySelector("#tipo").value === "Casa" ? 1 : 2
-    );
-    formData.append(
-      "address",
-      formElement.querySelector("#direccion").value.trim()
-    );
-    formData.append(
-      "latitude",
-      formElement.querySelector("#latitud").value.trim()
-    );
-    formData.append(
-      "longitude",
-      formElement.querySelector("#longitud").value.trim()
-    );
-    formData.append("price", formElement.querySelector("#precio").value.trim());
-    formData.append(
-      "description",
-      formElement.querySelector("#descripcion").value.trim()
-    );
+    formData.append("categoryId", parseInt(formElement.querySelector("#tipo").value === "Casa" ? 1 : 2));
+    formData.append("address", formElement.querySelector("#direccion").value.trim());
+    formData.append("latitude", parseFloat(formElement.querySelector("#latitud").value.trim()));
+    formData.append("longitude", parseFloat(formElement.querySelector("#longitud").value.trim()));
+    formData.append("price", parseFloat(formElement.querySelector("#precio").value.trim()));
+    formData.append("description", formElement.querySelector("#descripcion").value.trim());
     formData.append("ownerId", usuario.UserID);
 
     const files = formElement.querySelector("#input-fotos").files;
     for (let i = 0; i < files.length && i < 10; i++) {
-      formData.append("images", files[i]); // ← importante: debe coincidir con el campo que usas en multer: `images`
+      formData.append("images", files[i]);
     }
 
     const response = await fetch(`${API_BASE_URL}/property/createProperty`, {
@@ -156,21 +143,23 @@ export async function registrarInmuebleConImagenes(formElement) {
       body: formData,
     });
 
-    const contentType = response.headers.get("content-type");
     if (!response.ok) {
+      const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
         const err = await response.json();
         throw new Error(err.error || "No se pudo registrar el inmueble");
       } else {
-        const html = await response.text();
-        throw new Error("Respuesta inesperada del servidor:\n" + html);
+        const text = await response.text();
+        throw new Error("Respuesta inesperada del servidor: " + text);
       }
     }
 
     mostrarAlerta("Inmueble publicado correctamente", "success");
-    window.location.href = "cuenta.html";
+    setTimeout(() => {
+      window.location.href = "cuenta.html";
+    }, 1500);
   } catch (error) {
-    console.error(error);
+    console.error("[Registro inmueble]", error);
     mostrarAlerta(error.message || "Error al registrar inmueble", "error");
   }
 }
@@ -376,8 +365,18 @@ export function initMapaDesdeAPI(lat, lng) {
 // Función para obtener citas desde el backend
 async function obtenerCitas() {
   try {
-    const response = await fetch(`${API_BASE_URL}/property/getAppointments`);
+    const token = localStorage.getItem("token"); // ✅ leerlo directamente
+
+    if (!token) throw new Error("No hay token disponible");
+
+    const response = await fetch(`${API_BASE_URL}/property/getAppointments`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
     if (!response.ok) throw new Error("Error al obtener citas");
+
     return await response.json();
   } catch (error) {
     console.error("[Citas] Error al obtener citas:", error);
