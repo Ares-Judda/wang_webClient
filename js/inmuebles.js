@@ -222,41 +222,46 @@ function renderPreguntas(preguntas, inmuebleId) {
   seccion.innerHTML = `
     <h3>Preguntas y respuestas</h3>
     <div class="pregunta-form">
-      <input type="text" id="input-pregunta" placeholder="e.j. ¿Cuántas habitaciones tiene?" />
-      <button id="btn-preguntar">Enviar</button>
+      <input type="text" id="input-pregunta" placeholder="e.j. ¿Cuántas habitaciones tiene?" aria-label="Escribe tu pregunta sobre el inmueble"/>
+      <button id="btn-preguntar" class="boton-registrar" aria-label="Enviar pregunta">Enviar</button>
     </div>
-    <ul>
-      ${preguntas
-        .map(
-          (p) =>
-            `<li><strong>${p.dateAsked}:</strong> ${p.question}<br><em>Respuesta:</em> ${p.answer}</li>`
-        )
-        .join("")}
+    <ul class="lista-preguntas">
+      ${preguntas.map(p =>
+        `<li><strong>${p.dateAsked}:</strong> ${p.question}<br><em>Respuesta:</em> ${p.answer || "Aún sin respuesta"}</li>`
+      ).join("")}
     </ul>
   `;
 
-  document
-    .getElementById("btn-preguntar")
-    ?.addEventListener("click", async () => {
-      const pregunta = document.getElementById("input-pregunta").value.trim();
-      if (!pregunta) return;
-      try {
-        const usuario = JSON.parse(localStorage.getItem("usuario"));
-        const res = await fetch(`${API_BASE_URL}/preguntas`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            idInmueble: inmuebleId,
-            pregunta,
-            idUsuario: usuario.id,
-          }),
-        });
-        if (!res.ok) throw new Error();
-        location.reload();
-      } catch {
-        mostrarAlerta("No se pudo registrar la pregunta", "error");
+  document.getElementById("btn-preguntar")?.addEventListener("click", async () => {
+    const pregunta = document.getElementById("input-pregunta").value.trim();
+    if (!pregunta) {
+      mostrarAlerta("Escribe una pregunta válida", "warning");
+      return;
+    }
+
+    try {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+      const res = await fetch(`${API_BASE_URL}/property/faq`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tenantId: usuario.UserID,
+          propertyId: inmuebleId,
+          question: pregunta,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Error al registrar pregunta");
       }
-    });
+
+      mostrarAlerta("Pregunta enviada", "success");
+      location.reload();
+    } catch (e) {
+      mostrarAlerta("No se pudo registrar la pregunta", "error");
+    }
+  });
 }
 
 function renderResenas(resenas, inmuebleId) {
@@ -264,41 +269,45 @@ function renderResenas(resenas, inmuebleId) {
   seccion.innerHTML = `
     <h3>Reseñas del Inmueble y/o Arrendador</h3>
     <div class="review-form">
-      <input type="text" id="input-resena" placeholder="e.j. ¡Muy buen lugar para vivir con las 3B!" />
-      <input type="number" id="input-calificacion" placeholder="e.j. 5" min="1" max="5" />
-      <button id="btn-resena">Dar reseña</button>
+      <input type="text" id="input-resena" placeholder="e.j. ¡Muy buen lugar para vivir con las 3B!" aria-label="Comentario de reseña"/>
+      <input type="number" id="input-calificacion" placeholder="e.j. 5" min="1" max="5" aria-label="Calificación del 1 al 5"/>
+      <button id="btn-resena" class="boton-registrar" aria-label="Enviar reseña">Dar reseña</button>
     </div>
-    ${resenas
-      .map(
-        (r) => `
-      <div>
-        <p class="resena-usuario">Usuario:</p>
-        <p>${r.comment}</p>
-        <p><strong>Calificación:</strong> ${r.rating}</p>
-      </div>`
-      )
-      .join("")}
+    ${resenas.map(r => `
+      <div class="tarjeta-inmueble" role="region" aria-label="Reseña de usuario">
+        <p class="resena-usuario"><strong>Usuario:</strong> ${r.userName || "Anónimo"}</p>
+        <p><strong>Comentario:</strong> ${r.comment}</p>
+        <p><strong>Calificación:</strong> ${r.rating} ⭐</p>
+      </div>`).join("")}
   `;
 
   document.getElementById("btn-resena")?.addEventListener("click", async () => {
     const comentario = document.getElementById("input-resena").value.trim();
-    const calificacion = parseInt(
-      document.getElementById("input-calificacion").value
-    );
-    if (!comentario || isNaN(calificacion)) return;
+    const calificacion = parseInt(document.getElementById("input-calificacion").value);
+    if (!comentario || isNaN(calificacion)) {
+      mostrarAlerta("Debes completar ambos campos", "warning");
+      return;
+    }
+
     try {
       const usuario = JSON.parse(localStorage.getItem("usuario"));
-      const res = await fetch(`${API_BASE_URL}/resenas`, {
+      const res = await fetch(`${API_BASE_URL}/property/createReview`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          idInmueble: inmuebleId,
-          comentario,
-          calificacion,
-          idUsuario: usuario.id,
+          propertyId: inmuebleId,
+          comment: comentario,
+          rating: calificacion,
+          tenantId: usuario.UserID,
         }),
       });
-      if (!res.ok) throw new Error();
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Error al registrar reseña");
+      }
+
+      mostrarAlerta("Reseña enviada", "success");
       location.reload();
     } catch {
       mostrarAlerta("No se pudo registrar la reseña", "error");

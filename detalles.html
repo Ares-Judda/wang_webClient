@@ -56,7 +56,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              tenantId: usuario.id,
+              tenantId: usuario.UserID,
               propertyId: inmueble.id,
               visitDateTime: new Date().toISOString()
             })
@@ -75,5 +75,4 @@
 
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJL-Z1wCqOMEeNfYRgPkGMySrkXL3XrHU"></script>
 </body>
-
 </html>
