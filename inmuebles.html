@@ -44,15 +44,21 @@
   </main>
 
   <script type="module">
-    import { obtenerInmuebles, renderInmuebles } from './js/inmuebles.js';
-    document.addEventListener("DOMContentLoaded", async () => {
-      const contenedor = document.getElementById("contenedor-inmuebles");
-      const inmuebles = await obtenerInmuebles();
-      renderInmuebles(inmuebles.map(inmueble => ({
+  import { obtenerInmuebles, renderInmuebles } from './js/inmuebles.js';
+  document.addEventListener("DOMContentLoaded", async () => {
+    const contenedor = document.getElementById("contenedor-inmuebles");
+    const inmuebles = await obtenerInmuebles();
+    console.log('Inmuebles obtenidos:', JSON.stringify(inmuebles, null, 2));
+    const listaMapeada = inmuebles.map(inmueble => {
+      const propertyId = inmueble.PropertyID || inmueble.propertyId;
+      console.log('Mapeando inmueble con PropertyID:', propertyId);
+      return {
         ...inmueble,
-        enlace: `detalles.html?propertyId=${encodeURIComponent(inmueble.PropertyID || inmueble.propertyId)}`
-      })), contenedor);
+        enlace: `detalles?propertyId=${encodeURIComponent(propertyId)}`
+      };
     });
-  </script>
+    renderInmuebles(listaMapeada, contenedor);
+  });
+</script>
 </body>
 </html>
