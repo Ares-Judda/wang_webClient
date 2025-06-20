@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "./utils.js";
 import { mostrarAlerta } from "./utils.js";
+const backendBase = "http://localhost:8085";
 
 //Obtiene dos inmuebles específicos o todos si se indica
 export async function obtenerInmuebles(mostrarTodos = false) {
@@ -26,18 +27,19 @@ export async function obtenerInmuebles(mostrarTodos = false) {
 export function renderInmuebles(lista, contenedor) {
   contenedor.innerHTML = "";
   lista.forEach((inmueble) => {
-    console.log('Renderizando inmueble con enlace:', inmueble.enlace);
+    const imageUrl = inmueble.ImageURL ? backendBase + inmueble.ImageURL : 'assets/stockhouse.png';
+
     const card = document.createElement("div");
     card.classList.add("tarjeta-inmueble");
 
     card.innerHTML = `
-      <img src="${inmueble.ImageURL || 'assets/stockhouse.png'}" alt="Imagen inmueble">
+      <img src="${imageUrl}" alt="Imagen inmueble">
       <div class="contenido">
         <h3>${inmueble.Title}</h3>
         <p class="precio">$${parseFloat(inmueble.Price).toLocaleString("es-MX")} MXN</p>
-        <p class="direccion">${inmueble.Address}</p>
-        <p class="estado">${inmueble.CurrentStatus}</p>
-      <a href="${inmueble.enlace}" class="boton-detalles">Ver Detalles</a>
+        <p class="direccion">${inmueble.Address || ''}</p>
+        <p class="estado">${inmueble.CurrentStatus || ''}</p>
+        <a href="${inmueble.enlace || '#'}" class="boton-detalles">Ver Detalles</a>
       </div>
     `;
 
@@ -199,7 +201,7 @@ function renderGaleria(imagenes) {
   galeria.innerHTML = "";
   imagenes.forEach((img) => {
     const image = document.createElement("img");
-    image.src = img || "assets/stockhouse.png";
+    image.src = img ? backendBase + img : "assets/stockhouse.png";
     image.alt = "Imagen inmueble";
     galeria.appendChild(image);
   });
