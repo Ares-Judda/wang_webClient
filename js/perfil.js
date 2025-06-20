@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "./utils.js";
 import { mostrarAlerta } from "./utils.js";
+const backendBase = "http://localhost:8085";
 
 // Registro de nuevo usuario
 const formRegistro = document.getElementById("form-registro");
@@ -128,8 +129,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const tarjeta = document.createElement("div");
       tarjeta.className = "tarjeta-inmueble";
       tarjeta.innerHTML = `
-        <img src="${
-          inmueble.imagen || "assets/stockhouse.png"
+        <img src="${inmueble.imagen || "assets/stockhouse.png"
         }" alt="Imagen del inmueble" />
         <div class="contenido">
           <h3>${inmueble.titulo}</h3>
@@ -193,9 +193,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (user.ProfileImageUrl) {
       const preview = document.getElementById("preview-imagen");
       const img = document.createElement("img");
-      img.src = user.ProfileImageUrl.startsWith("http")
-        ? user.ProfileImageUrl
-        : `${API_BASE_URL}${user.ProfileImageUrl}`;
+      img.src = user.ProfileImageUrl ? `${backendBase}${user.ProfileImageUrl}` : "assets/stockhouse.png";
       img.classList.add("preview-image");
       preview.appendChild(img);
     }
