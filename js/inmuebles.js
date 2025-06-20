@@ -31,7 +31,7 @@ export function renderInmuebles(lista, contenedor) {
     card.classList.add("tarjeta-inmueble");
 
     card.innerHTML = `
-      <img src="assets/stockhouse.png" alt="Imagen inmueble">
+      <img src="${inmueble.ImageURL || 'assets/stockhouse.png'}" alt="Imagen inmueble">
       <div class="contenido">
         <h3>${inmueble.Title}</h3>
         <p class="precio">$${parseFloat(inmueble.Price).toLocaleString("es-MX")} MXN</p>
